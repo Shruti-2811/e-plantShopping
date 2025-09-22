@@ -9,33 +9,58 @@ const CartItem = ({ onContinueShopping }) => {
 
   // Calculate total amount for all products in the cart
   const calculateTotalAmount = () => {
- 
+    return cart.reduce((total, item) => {
+      const costNumber = parseFloat(item.cost.replace('$', '')) || 0;
+      return total + costNumber * item.quantity;
+    }, 0);
   };
 
+  // Handle continue shopping
   const handleContinueShopping = (e) => {
-   
+    e.preventDefault();
+    onContinueShopping();
   };
 
-
-
+  // Increment quantity
   const handleIncrement = (item) => {
+    dispatch(updateQuantity({ name: item.name, quantity: item.quantity + 1 }));
   };
 
+  // Decrement quantity
   const handleDecrement = (item) => {
-   
+    if (item.quantity > 1) {
+      dispatch(updateQuantity({ name: item.name, quantity: item.quantity - 1 }));
+    } else {
+      dispatch(removeItem({ name: item.name }));
+    }
   };
 
+  // Remove item completely
   const handleRemove = (item) => {
+    dispatch(removeItem({ name: item.name }));
   };
 
-  // Calculate total cost based on quantity for an item
+  // Calculate total cost per item
   const calculateTotalCost = (item) => {
+    const costNumber = parseFloat(item.cost.replace('$', '')) || 0;
+    return (costNumber * item.quantity).toFixed(2);
   };
+
+  if (cart.length === 0) {
+    return (
+      <div className="cart-container">
+        <h2>Your Cart is Empty</h2>
+        <button className="get-started-button" onClick={handleContinueShopping}>
+          Continue Shopping
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div className="cart-container">
-      <h2 style={{ color: 'black' }}>Total Cart Amount: ${calculateTotalAmount()}</h2>
-      <div>
+      <h2>Total Cart Amount: ${calculateTotalAmount().toFixed(2)}</h2>
+      <div className="cart-items-list">
         {cart.map(item => (
           <div className="cart-item" key={item.name}>
             <img className="cart-item-image" src={item.image} alt={item.name} />
@@ -53,10 +78,11 @@ const CartItem = ({ onContinueShopping }) => {
           </div>
         ))}
       </div>
-      <div style={{ marginTop: '20px', color: 'black' }} className='total_cart_amount'></div>
+      
       <div className="continue_shopping_btn">
-        <button className="get-started-button" onClick={(e) => handleContinueShopping(e)}>Continue Shopping</button>
-        <br />
+        <button className="get-started-button" onClick={handleContinueShopping}>
+          Continue Shopping
+        </button>
         <button className="get-started-button1">Checkout</button>
       </div>
     </div>
@@ -64,5 +90,3 @@ const CartItem = ({ onContinueShopping }) => {
 };
 
 export default CartItem;
-
-
